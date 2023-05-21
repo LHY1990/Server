@@ -12,6 +12,7 @@
 #include <atomic> //멀티스레드에서 원자성을 지원
 #include <mutex>  // stl등의 원자성 지원. 상호배제
 #include <Windows.h>
+#include <future>
 
 #include<iostream>
 using namespace std;
