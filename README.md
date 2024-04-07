@@ -1,1 +1,1 @@
-# GameServer
+# cpp 스터디
