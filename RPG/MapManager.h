@@ -20,7 +20,7 @@ public:
 public:
 	Map* getMap(const INT64& _uID);
 	void drawMap(const INT64& _uID);
-	Map* makeMap(const int& _x, const int& _y, std::vector<PosInfo*>& _posList);
+	Map* makeMap(const int& _x, const int& _y, std::vector<PosInfo>& _posList);
 	bool registUser(const INT64& _uID, const int& _x, const int& _y, E_CLASS _userClass);
 	void move(const INT64& _uID, const char& _keyboad);
 	std::string getMapTile(const char& _mapTile);

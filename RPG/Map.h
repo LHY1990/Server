@@ -4,6 +4,11 @@
 
 struct PosInfo
 {
+	PosInfo()
+	{
+		_x, _y = 0;
+	}
+
 	PosInfo(int _x, int _y)
 	{
 		this->_x = _x;
