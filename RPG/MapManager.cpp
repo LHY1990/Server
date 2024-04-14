@@ -38,11 +38,73 @@ MapManager::~MapManager()
 	}
 }
 
-Map* MapManager::makeMap(const int& _x, const int& _y)
+Map* MapManager::makeMap(const int& _x, const int& _y, std::vector<PosInfo*>& _posList)
 {
-	// 맵을 주입받도록 한다.
+	Map* pMap = new Map(_x, _y);
 
-	return new Map(_x, _y);
+	// 맵을 만들어 줍니다.
+	srand((unsigned int)time(nullptr));
+	int maxVoid = _x * _y * 0.7; //50퍼를 기준으로 적당히 채웁니다.
+
+	// 길을 만들기 위한 임의의 시작 끝점
+	int nBeginPos = _x * _y;
+	int nEndPos = 0;
+
+	int cor = 0;
+	for (int i = 0; i < maxVoid; ++i)
+	{
+		cor = rand() % (_x * _y);
+		pMap->getRawMap()[cor] = static_cast<int>(E_TILE_TYPE::NONE);
+
+		if (cor > nEndPos)
+			nEndPos = cor;
+		if (cor < nBeginPos)
+			nBeginPos = cor;
+
+	}
+
+	// 랜덤한 두 선을 잡아서 연결해 줍니다.
+	
+	// 두 선을 이어줍니다.
+	int nStartY = nBeginPos / _y;
+	int nStartX = (nBeginPos % _y) % _x;
+	_posList.push_back(new PosInfo(nStartX, nStartY));
+
+
+	int nEndY = nEndPos / _y;
+	int nEndX = (nEndPos % _y) % _x;
+
+	int moveStatus = 0;
+	while ((nStartX != nEndX) || (nStartY != nEndY))
+	{
+		moveStatus = rand() % 2;
+
+		if (moveStatus == 0) // x축 움직이기
+		{
+			if (nStartX != nEndX)
+			{
+				if (nStartX < nEndX) // 끝점이 시작점보다 오른쪽이면
+					++nStartX;
+				else
+					--nStartX;
+				pMap->getRawMap()[_y * nStartY + nStartX] = static_cast<int>(E_TILE_TYPE::NONE);
+			}
+		}
+		else // y축 움직이기
+		{
+			if (nStartY != nEndY)
+			{
+				if (nStartY < nEndY)
+					++nStartY;
+				else
+					--nStartY;
+				pMap->getRawMap()[_y * nStartY + nStartX] = static_cast<int>(E_TILE_TYPE::NONE);
+			}
+		}
+		_posList.push_back(new PosInfo(nStartX, nStartY));
+	}
+
+	return pMap;
 }
 
 bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_CLASS _userClass)
@@ -51,7 +113,8 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 	if (m_mapList.find(_uID) != m_mapList.end())
 		return false;
 
-	Map* pMap = makeMap(_x, _y);
+	std::vector<PosInfo*> placableList = std::vector<PosInfo*>(0);
+	Map* pMap = makeMap(_x, _y, placableList);
 	m_mapList[_uID] = pMap;
 
 
@@ -59,25 +122,65 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 	if (iter == m_actorList.end())
 		m_actorList[_uID] = std::vector<Actor*>(0);
 
+	int currentPos = 0;
 	// 플레이어 0,0 위치에 등록
-	Player* pPlayer = new Player(0, 0, _userClass);
+	for (int i = 0; i < pMap->getX() * pMap->getY(); ++i)
+	{
+		if (pMap->getRawMap()[i] == static_cast<int>(E_TILE_TYPE::NONE))
+			currentPos = i;
+	}
+
+	// 유저는 시작점 정보를 가지고 쓰고 없앤다. 유저 생성지점 근처에 적이 생기지 않도록 한다
+	auto* pUserPlaceInfo = placableList.at(0);
+	Player* pPlayer = new Player(pUserPlaceInfo->_x, pUserPlaceInfo->_y, _userClass);
+	placableList.erase(placableList.begin() + placableList.size()/4); // 앞의 4분의 1을 자릅니다.
+
+	// 유저등록
 	m_actorList[_uID].push_back(pPlayer);
 
 	// 적 등록
-	const int ENEMY_SIZE = 3;
-	int nX;
-	int nY;
+	const int ENEMY_SIZE = _x / 2;
+	PosInfo* pPosInfo;
+	int nRandomIndex = 0;
 	srand((unsigned int)time(nullptr)); // 적위치 랜덤 시드
 
+	int nRandX = 0;
+	int nRandY = 0;
+
+	// 길가의 적들과 랜덤 적을 넣는다.
+	int enemyType = 0; // 0: 길가의 적, 1: 랜덤위치 적
 	while (m_actorList[_uID].size() < ENEMY_SIZE + 1)
 	{
-		nX = rand() % pMap->getX();
-		nY = rand() % pMap->getY();
+		enemyType = rand() / 100;
 
-		if (*(pMap->getRawMap() + nX + nY) == static_cast<int>(E_CLASS::E_CLASS_NONE))
+		if (enemyType < 95) // 루트상의 적 비율이 더 높다
 		{
-			m_actorList[_uID].push_back(new Enemy(nX, nY, E_ENEMY_TYPE::TYPE_MOB));
+			nRandomIndex = rand() % placableList.size();
+			pPosInfo = placableList.at(nRandomIndex);
+
+			if (*(pMap->getRawMap() + pPosInfo->_x + pPosInfo->_y) == static_cast<int>(E_CLASS::E_CLASS_NONE))
+			{
+				m_actorList[_uID].push_back(new Enemy(pPosInfo->_x, pPosInfo->_y, E_ENEMY_TYPE::TYPE_MOB));
+			}
 		}
+		else // 랜덤 적
+		{
+			nRandX = rand() % _x;
+			nRandY = rand() % _y;
+
+			if (*(pMap->getRawMap() + nRandX + nRandY) == static_cast<int>(E_CLASS::E_CLASS_NONE))
+			{
+				m_actorList[_uID].push_back(new Enemy(nRandX, nRandY, E_ENEMY_TYPE::TYPE_MOB));
+			}
+		}
+	}
+
+
+
+	for (auto pPosInfo : placableList)
+	{
+		if (pPosInfo != nullptr)
+			delete pPosInfo;
 	}
 
 	return true;
@@ -186,14 +289,14 @@ void MapManager::move(const INT64& _uID, const char& _keyboad)
 	};
 }
 
-std::string MapManager::getMapTile(const int& _mapTile)
+std::string MapManager::getMapTile(const char& _mapTile)
 {
 	switch (static_cast<E_TILE_TYPE>(_mapTile))
 	{
 	case E_TILE_TYPE::NONE:
 		return "▒ ";
 	case E_TILE_TYPE::BLOCK:
-		return "◇";
+		return "■";
 	case E_TILE_TYPE::CHARACTER:
 		return "♤";
 	case E_TILE_TYPE::ENEMY:

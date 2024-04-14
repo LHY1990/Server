@@ -10,11 +10,12 @@ Map::Map(const int& _sizeX, const int& _sizeY) :m_nSizeX{ _sizeX }, m_nSizeY{ _s
 	m_nSizeX = _sizeX;
 	m_nSizeY = _sizeY;
 
-	m_RawMap = new int[_sizeX * m_nSizeY] {0};
+	m_RawMap = new char[_sizeX * m_nSizeY] {1};
 
+	// 맵은 기본적으로 막아줍니다. 빈공간을 만들어주는식
 	for (int x = 0; x < _sizeX; ++x)
 		for (int y = 0; y < _sizeY; ++y)
-			*(m_RawMap + (x + y)) = 0;
+			*(m_RawMap + (x + y*_sizeY)) = static_cast<char>(E_TILE_TYPE::BLOCK);
 
 }
 
@@ -34,7 +35,7 @@ int Map::getY()
 	return m_nSizeY;
 }
 
-int* Map::getRawMap()
+char* Map::getRawMap()
 {
 	return m_RawMap;
 }
