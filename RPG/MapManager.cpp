@@ -11,36 +11,11 @@ MapManager::MapManager()
 }
 MapManager::~MapManager()
 {
-	// 맵 리스트 정리
-	map<INT64, Map*>::iterator iter = m_mapList.begin();
-	for (; iter != m_mapList.end(); ++iter)
-	{
-		if (iter->second != nullptr)
-		{
-			if (iter->second->getRawMap() != nullptr)
-				iter->second->~Map();
-
-			delete iter->second;
-		}
-	}
-
-	// 액터 리스트 정리
-	std::map<INT64, std::vector<Actor*>>::iterator actorIter = m_actorList.begin();
-
-	// 내부의 액터를 정리해 줘야한다. 벡터는 그냥 복사 처리
-	for (; actorIter != m_actorList.end(); ++actorIter)
-	{
-		for (auto single : actorIter->second)
-		{
-			if (single != nullptr)
-				delete single;
-		}
-	}
 }
 
-Map* MapManager::makeMap(const int& _x, const int& _y, std::vector<PosInfo>& _posList)
+std::shared_ptr<Map> MapManager::makeMap(const int& _x, const int& _y, std::vector<PosInfo>& _posList)
 {
-	Map* pMap = new Map(_x, _y);
+	auto _map = std::make_shared<Map>(_x, _y);
 
 	// 맵을 만들어 줍니다.
 	srand((unsigned int)time(nullptr));
@@ -54,7 +29,7 @@ Map* MapManager::makeMap(const int& _x, const int& _y, std::vector<PosInfo>& _po
 	for (int i = 0; i < maxVoid; ++i)
 	{
 		cor = rand() % (_x * _y);
-		pMap->getRawMap()[cor] = static_cast<int>(E_TILE_TYPE::NONE);
+		_map->getRawMap().get()[cor] = static_cast<int>(E_TILE_TYPE::NONE);
 
 		if (cor > nEndPos)
 			nEndPos = cor;
@@ -86,7 +61,7 @@ Map* MapManager::makeMap(const int& _x, const int& _y, std::vector<PosInfo>& _po
 					++nStartX;
 				else
 					--nStartX;
-				pMap->getRawMap()[_y * nStartY + nStartX] = static_cast<int>(E_TILE_TYPE::NONE);
+				_map->getRawMap().get()[_y * nStartY + nStartX] = static_cast<int>(E_TILE_TYPE::NONE);
 			}
 		}
 		else // y축 움직이기
@@ -97,13 +72,14 @@ Map* MapManager::makeMap(const int& _x, const int& _y, std::vector<PosInfo>& _po
 					++nStartY;
 				else
 					--nStartY;
-				pMap->getRawMap()[_y * nStartY + nStartX] = static_cast<int>(E_TILE_TYPE::NONE);
+
+				_map->getRawMap().get()[_y * nStartY + nStartX] = static_cast<int>(E_TILE_TYPE::NONE);
 			}
 		}
 		_posList.push_back(PosInfo(nStartX, nStartY));
 	}
 
-	return pMap;
+	return _map;
 }
 
 bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_CLASS _userClass)
@@ -113,26 +89,26 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 		return false;
 
 	std::vector<PosInfo> placableList = std::vector<PosInfo>(0);
-	Map* pMap = makeMap(_x, _y, placableList);
-	m_mapList[_uID] = pMap;
 
+	//auto pMap = std::make_shared<Map>(_x, _y);
+	auto pMap = makeMap(_x, _y, placableList);
+	m_mapList[_uID] = pMap;
 
 	auto iter = m_actorList.find(_uID);
 	if (iter == m_actorList.end())
-		m_actorList[_uID] = std::vector<Actor*>(0);
+		m_actorList[_uID] = std::vector<std::shared_ptr<Actor>>(0);
 
 	int currentPos = 0;
 	// 플레이어 0,0 위치에 등록
 	for (int i = 0; i < pMap->getX() * pMap->getY(); ++i)
 	{
-		if (pMap->getRawMap()[i] == static_cast<int>(E_TILE_TYPE::NONE))
+		if (pMap->getRawMap().get()[i] == static_cast<int>(E_TILE_TYPE::NONE))
 			currentPos = i;
 	}
 
 	// 유저는 시작점 정보를 가지고 쓰고 없앤다. 유저 생성지점 근처에 적이 생기지 않도록 한다
 	auto pUserPlaceInfo = placableList.at(0);
-	Player* pPlayer = new Player(pUserPlaceInfo._x, pUserPlaceInfo._y, _userClass);
-	placableList.erase(placableList.begin() + placableList.size() / 4); // 앞의 4분의 1을 자릅니다.
+	auto pPlayer = std::make_shared<Player>(pUserPlaceInfo._x, pUserPlaceInfo._y, _userClass);
 
 	// 유저등록
 	m_actorList[_uID].push_back(pPlayer);
@@ -157,9 +133,12 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 			nRandomIndex = rand() % placableList.size();
 			stPosInfo = placableList.at(nRandomIndex);
 
-			if (*(pMap->getRawMap() + stPosInfo._x + stPosInfo._y) == static_cast<int>(E_CLASS::E_CLASS_NONE))
+			if (stPosInfo._x == pPlayer->getX() && stPosInfo._y == pPlayer->getY())
+				continue;
+
+			if (*(pMap->getRawMap().get() + stPosInfo._x + stPosInfo._y) == static_cast<int>(E_CLASS::E_CLASS_NONE))
 			{
-				m_actorList[_uID].push_back(new Enemy(stPosInfo._x, stPosInfo._y, E_ENEMY_TYPE::TYPE_MOB));
+				m_actorList[_uID].push_back(std::make_shared<Enemy>(stPosInfo._x, stPosInfo._y, E_ENEMY_TYPE::TYPE_MOB));
 			}
 		}
 		else // 랜덤 적
@@ -170,9 +149,9 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 			if (nRandX == pPlayer->getX() && nRandY == pPlayer->getY())
 				continue;
 
-			if (*(pMap->getRawMap() + nRandX + nRandY) == static_cast<int>(E_CLASS::E_CLASS_NONE))
+			if (*(pMap->getRawMap().get() + nRandX + nRandY) == static_cast<int>(E_CLASS::E_CLASS_NONE))
 			{
-				m_actorList[_uID].push_back(new Enemy(nRandX, nRandY, E_ENEMY_TYPE::TYPE_MOB));
+				m_actorList[_uID].push_back(std::make_shared<Enemy>(nRandX, nRandY, E_ENEMY_TYPE::TYPE_MOB));
 			}
 		}
 	}
@@ -180,7 +159,7 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 	return true;
 }
 
-Map* MapManager::getMap(const INT64& _uID)
+std::shared_ptr<Map> MapManager::getMap(const INT64& _uID)
 {
 	auto iter = m_mapList.find(_uID);
 
@@ -196,7 +175,7 @@ Map* MapManager::getMap(const INT64& _uID)
 
 void MapManager::drawMap(const INT64& _uID)
 {
-	Map* map = getMap(_uID);
+	auto map = getMap(_uID);
 	if (map == nullptr)
 	{
 		LogManager::error("맵이 등록되지 않은 유저입니다.");
@@ -213,7 +192,7 @@ void MapManager::drawMap(const INT64& _uID)
 			eTemp = E_TILE_TYPE::NONE;
 
 			// 기본 맵 속성
-			unicode = getMapTile(*(map->getRawMap() + (x + y * map->getY())));
+			unicode = getMapTile(*(map->getRawMap().get() + (x + y * map->getY())));
 
 			// 유저나 적, 보스를 검색해서 맵에 반영
 			eTemp = getActorOnTile(_uID, x, y);
@@ -221,9 +200,9 @@ void MapManager::drawMap(const INT64& _uID)
 				unicode = getMapTileByEnum(eTemp);
 
 
-			std::cout << unicode;
+			printf("%s", unicode.c_str());;
 		}
-		std::cout << std::endl;
+		printf("\n");
 	}
 
 
@@ -231,7 +210,7 @@ void MapManager::drawMap(const INT64& _uID)
 
 void MapManager::move(const INT64& _uID, const char& _keyboad)
 {
-	Map* const pUserMap = getMap(_uID);
+	const auto pUserMap = getMap(_uID);
 	auto actorIter = m_actorList.find(_uID);
 	if (actorIter == m_actorList.end())
 	{
@@ -239,7 +218,7 @@ void MapManager::move(const INT64& _uID, const char& _keyboad)
 		return;
 	}
 
-	Actor* pPlayer = *actorIter->second.begin(); //첫 플레이어가 유저이다. 이거 함수로 처리할것
+	auto pPlayer = *actorIter->second.begin(); //첫 플레이어가 유저이다. 이거 함수로 처리할것
 	if (pPlayer == nullptr)
 	{
 		LogManager::error("유저 액터가 없습니다.");
@@ -305,22 +284,20 @@ std::string MapManager::getMapTileByEnum(E_TILE_TYPE _eTile)
 	return getMapTile(static_cast<int>(_eTile));
 }
 
-
-
 E_TILE_TYPE MapManager::getActorOnTile(const INT64& _uID, const int& _x, const int& _y)
 {
 	auto iter = m_actorList.find(_uID);
 	if (iter == m_actorList.end() || true == m_actorList.empty())
 		return E_TILE_TYPE::NONE;
 
-	for (Actor* single : iter->second)
+	for (auto pActor : iter->second)
 	{
-		if (single == nullptr)
+		if (pActor == nullptr)
 			continue;
 
-		if (single->isSamePosition(_x, _y))
+		if (pActor->isSamePosition(_x, _y))
 		{
-			return single->getActorTile();
+			return pActor->getActorTile();
 		}
 	}
 

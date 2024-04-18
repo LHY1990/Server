@@ -1,6 +1,6 @@
 #include "AttackManager.h"
 
-void AttackManager::Attack(Actor* const _attacker, Actor* const _target)
+void AttackManager::Attack(std::shared_ptr<Actor> const _attacker, std::shared_ptr<Actor> const _target)
 {
 	if (_attacker == nullptr || _target == nullptr)
 		return;

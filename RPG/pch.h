@@ -14,11 +14,13 @@
 #include <format>
 #include <locale.h>
 #include <random>
+#include <memory>
 
 #include "Actor.h"
 #include "LogManager.h"
 #include "MapManager.h"
 #include "Map.h"
+
 
 
 #define DEFAULT_X 10;
@@ -67,3 +69,5 @@ enum class E_ENEMY_TYPE : int
 	TYPE_ELITE,
 	TYPE_BOSS
 };
+
+

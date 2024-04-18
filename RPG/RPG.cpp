@@ -1,22 +1,38 @@
 ﻿#include "pch.h"
 
 
+#pragma comment(lib, "Dbghelp.lib")
+#include <DbgHelp.h> //디버깅
+
+LONG WINAPI ExceptionCallBack(EXCEPTION_POINTERS* exceptionInfo)
+{
+	MINIDUMP_EXCEPTION_INFORMATION info = { 0 };
+	info.ThreadId = ::GetCurrentThreadId(); // Threae ID 설정
+	info.ExceptionPointers = exceptionInfo; // Exception 정보 설정
+	info.ClientPointers = FALSE;
+
+	// 덤프 파일 생성
+	std::wstring strtemp(L"D:\\GIT_LHY1990\\Server\\DUMP.dmp");
+	HANDLE hFile = CreateFile(strtemp.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &info, NULL, NULL);
+
+	return 0L;
+}
+
+
 /*
-* // 맵 크기 정하기
-* // 직업 정하기
-* // 키보드 이동
-*
-* //맵크기 입력받기
-* //랜덤맵 알고리즘으로 생성 -> 함수 할것
-* //빈타일에 랜덤 몹 생성
+* 몹이동
+* 스레드
+* 범위내 들어오면 공격
 * 이동후 주변 탐색으로 몹 있는지 확인 -> 함수뺄것
 */
 
 class AttackManager; // 전투 공식 및 전투 체크사항
 class EnemyManager; // 적군 관리
-
 E_CLASS selectClass(int& _userSelect);
 void selectMapSize(int& _userInput);
+
+using namespace std;
 
 int main()
 {
@@ -33,35 +49,38 @@ int main()
 	// 맵크기 입력 받기
 	selectMapSize(nUserInput);
 
-	MapManager* mapManager = new MapManager();
+	auto pMapManager = make_unique<MapManager>();
+	pMapManager->registUser(nAuid, nUserInput, nUserInput, eUserClass);
 
-	auto result = mapManager->registUser(nAuid, nUserInput, nUserInput, eUserClass);
-	auto userMap = mapManager->getMap(nAuid);
+	auto userMap = pMapManager->getMap(nAuid);
 
-	while (true)
-	{
+	SetUnhandledExceptionFilter(ExceptionCallBack);
 
-
-		if (::_kbhit() > 0)
+	try {
+		while (true)
 		{
-			nInputKey = ::_getch();
-			//printf("Key : %d\n", nInputKey);
+			if (::_kbhit() > 0)
+			{
+				nInputKey = ::_getch();
+				//printf("Key : %d\n", nInputKey);
+			}
+			else nInputKey = 0;
+
+			pMapManager->move(nAuid, nInputKey);
+
+			pMapManager->drawMap(nAuid);
+
+			//주변에 적이 있는지 확인하는 함수 
+
+			::Sleep(150);
+			system("cls");
 		}
-		else nInputKey = 0;
-
-		//switch (nInputKey)
-		//{
-		//default: break;
-		//}
-		mapManager->move(nAuid, nInputKey);
-
-		mapManager->drawMap(nAuid);
-
-		//주변에 적이 있는지 확인하는 함수 
-
-		::Sleep(150);
-		system("cls");
 	}
+	catch (exception& e)
+	{
+		LogManager::error(e.what());
+	}
+	
 }
 
 E_CLASS selectClass(int& _userInput)
@@ -88,7 +107,7 @@ E_CLASS selectClass(int& _userInput)
 		std::cout << "직업은 궁수입니다." << std::endl;
 		break;
 	}
-	::Sleep(2000);
+	::Sleep(150);
 
 	return job;
 }

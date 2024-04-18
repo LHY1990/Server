@@ -3,6 +3,6 @@
 
 class AttackManager
 {
-	void Attack(Actor* const _attacker, Actor* const _target);
+	void Attack(std::shared_ptr<Actor> const _attacker, std::shared_ptr<Actor> const _target);
 };
 
