@@ -1,14 +1,15 @@
 ﻿#include "pch.h"
 
+
 /*
 * 몹이동
 * 스레드
 * 범위내 들어오면 공격
 * 이동후 주변 탐색으로 몹 있는지 확인 -> 함수뺄것
 */
-
+class MapManager;
+class EnemyManager;
 class AttackManager; // 전투 공식 및 전투 체크사항
-class EnemyManager; // 적군 관리
 E_CLASS selectClass(int& _userSelect);
 void selectMapSize(int& _userInput);
 
@@ -30,10 +31,10 @@ int main()
 	selectMapSize(nUserInput);
 
 	auto pMapManager = make_shared<MapManager>();
-	auto pEnemyManager = make_shared<EnemyManager>(pMapManager);
+	auto pEnemyManager = make_shared<EnemyManager>();
 	pMapManager->registUser(nAuid, nUserInput, nUserInput, eUserClass);
 
-	auto userMap = pMapManager->getMap(nAuid);
+	shared_ptr<Map> userMap = pMapManager->getMap(nAuid);
 
 	try {
 		while (true)
@@ -45,7 +46,7 @@ int main()
 			}
 			else nInputKey = 0;
 
-			pMapManager->move(nAuid, nInputKey);
+			pMapManager->playerMove(nAuid, nInputKey);
 
 			pMapManager->drawMap(nAuid);
 

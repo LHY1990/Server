@@ -19,6 +19,8 @@
 #include "Actor.h"
 #include "LogManager.h"
 #include "MapManager.h"
+#include "EnemyManager.h"
+
 #include "Map.h"
 
 

@@ -208,7 +208,7 @@ void MapManager::drawMap(const INT64& _uID)
 
 }
 
-void MapManager::move(const INT64& _uID, const char& _keyboad)
+void MapManager::playerMove(const INT64& _uID, const char& _keyboad)
 {
 	const auto pUserMap = getMap(_uID);
 	auto actorIter = m_actorList.find(_uID);
