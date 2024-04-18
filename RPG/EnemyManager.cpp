@@ -1,15 +1,36 @@
 #include "EnemyManager.h"
 
-EnemyManager::EnemyManager()
+EnemyManager::EnemyManager(std::shared_ptr<MapManager>& _pMapManager) : m_pMapManager{ _pMapManager }
 {
+
 }
 
-void EnemyManager::simulateEnemyMove(std::weak_ptr<MapManager>& _pMapManager, const INT64& _uID)
+void EnemyManager::simulateEnemyMove()
 {
-	std::shared_ptr pMapManager = _pMapManager.lock();
-	if (pMapManager)
+	if (m_pMapManager == nullptr)
+		return;
+
+	auto actorList = m_pMapManager->getActorList();
+
+	if (actorList.size() <= 0)
+		return;
+
+	INT64 currentUID = 0;
+	std::shared_ptr<Actor> player;
+	std::shared_ptr<Map> currentMap;
+
+	for (auto iter = actorList.begin(); iter != actorList.end(); ++iter)
 	{
-		auto temp = pMapManager->getMap(_uID);
+		currentUID = iter->first;
+		currentMap = m_pMapManager->getMap(currentUID); //맵이다.
+
+		//player = iter->second.at(0); 1유저는 플레이어
+
+		for (auto i = 1; i < iter->second.size(); ++i) // second = actorList
+		{
+			//이 함수를 스레드로 처리
+		}
+
 	}
 }
 

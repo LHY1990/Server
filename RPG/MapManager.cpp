@@ -303,3 +303,8 @@ E_TILE_TYPE MapManager::getActorOnTile(const INT64& _uID, const int& _x, const i
 
 	return E_TILE_TYPE::NONE;
 }
+
+std::map<INT64, std::vector<std::shared_ptr<Actor>>> MapManager::getActorList()
+{
+	return m_actorList;
+}

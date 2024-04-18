@@ -27,6 +27,7 @@ public:
 	std::string getMapTile(const char& _mapTile);
 	std::string getMapTileByEnum(E_TILE_TYPE _eTile);
 	E_TILE_TYPE getActorOnTile(const INT64& _uID, const int& x, const int& _y);
+	std::map<INT64, std::vector<std::shared_ptr<Actor>>> getActorList();
 
 };
 

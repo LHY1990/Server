@@ -15,6 +15,7 @@
 #include <locale.h>
 #include <random>
 #include <memory>
+#include <thread>
 
 #include "Actor.h"
 #include "LogManager.h"

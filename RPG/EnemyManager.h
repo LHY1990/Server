@@ -5,10 +5,12 @@ class MapManager;
 
 class EnemyManager
 {
+public:
+	std::shared_ptr<MapManager> m_pMapManager;
 
 public:
-	EnemyManager();
+	EnemyManager(std::shared_ptr<MapManager>& _pMapManager);
 
-	void simulateEnemyMove(std::weak_ptr<MapManager>& _pMapManager, const INT64& _uID);
+	void simulateEnemyMove();
 };
 

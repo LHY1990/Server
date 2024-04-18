@@ -31,10 +31,11 @@ int main()
 	selectMapSize(nUserInput);
 
 	auto pMapManager = make_shared<MapManager>();
-	auto pEnemyManager = make_shared<EnemyManager>();
 	pMapManager->registUser(nAuid, nUserInput, nUserInput, eUserClass);
 
 	shared_ptr<Map> userMap = pMapManager->getMap(nAuid);
+
+	auto pEnemyManager = make_shared<EnemyManager>(pMapManager);
 
 	try {
 		while (true)
@@ -49,8 +50,6 @@ int main()
 			pMapManager->playerMove(nAuid, nInputKey);
 
 			pMapManager->drawMap(nAuid);
-
-			//주변에 적이 있는지 확인하는 함수 
 
 			::Sleep(100);
 			system("cls");
