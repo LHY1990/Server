@@ -12,45 +12,43 @@ enum class E_TILE_TYPE;
 class Actor
 {
 private:
-    int m_nMaxHP;
-    int m_nCurrentHP;
-    int m_nAttack;
-    int m_nDefense;
-    int m_nSearchRange;
+	int m_nMaxHP;
+	int m_nCurrentHP;
+	int m_nAttack;
+	int m_nDefense;
+	int m_nSearchRange;
 
-    int m_nPosX;
-    int m_nPosY;
-    bool m_bIsDie;
+	int m_nPosX;
+	int m_nPosY;
+	bool m_bIsDie;
 
-    E_DIRECTION m_eDirection;
-    E_TILE_TYPE m_eTileType;
+	E_DIRECTION m_eDirection;
+	E_TILE_TYPE m_eTileType;
 public:
-    Actor(const int _posX, const int _posY, E_TILE_TYPE _eTileType);
+	Actor(const int _posX, const int _posY, E_TILE_TYPE _eTileType);
 
-    int getMaxHp();
-    void setMaxHp(const int& _hp);
+	int getMaxHp();
+	void setMaxHp(const int& _hp);
 
-    int getCurrentHp();
-    void setCurrentHp(const int& _hp);
+	int getCurrentHp();
+	void setCurrentHp(const int& _hp);
 
-    int getAttack();
-    int increaseAttack(const int& _inc);
+	int getAttack();
+	int increaseAttack(const int& _inc);
 
-    int getDeffense();
-    int increaseDeffence();
+	int getDeffense();
+	int increaseDeffence();
 
-    void setPos(const int& _x, const int& _y);
+	void setPos(const int& _x, const int& _y);
 
-    
+	bool isDie();
 
-    bool isDie();
+	int getX();
+	void setX(const int _x);
 
-    int getX();
-    void setX(const int _x);
+	int getY();
+	void setY(const int _y);
 
-    int getY();
-    void setY(const int _y);
-
-    bool isSamePosition(const int& _x, const int& _y);
-    E_TILE_TYPE getActorTile();
+	bool isSamePosition(const int& _x, const int& _y);
+	E_TILE_TYPE getActorTile();
 };

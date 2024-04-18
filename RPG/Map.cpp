@@ -10,12 +10,12 @@ Map::Map(const int& _sizeX, const int& _sizeY) :m_nSizeX{ _sizeX }, m_nSizeY{ _s
 	m_nSizeX = _sizeX;
 	m_nSizeY = _sizeY;
 
-	m_RawMap = new char[_sizeX * m_nSizeY] {1};
+	m_RawMap = new char[_sizeX * m_nSizeY]{ 1 };
 
 	// 맵은 기본적으로 막아줍니다. 빈공간을 만들어주는식
 	for (int x = 0; x < _sizeX; ++x)
 		for (int y = 0; y < _sizeY; ++y)
-			*(m_RawMap + (x + y*_sizeY)) = static_cast<char>(E_TILE_TYPE::BLOCK);
+			*(m_RawMap + (x + y * _sizeY)) = static_cast<char>(E_TILE_TYPE::BLOCK);
 
 }
 
@@ -53,7 +53,7 @@ bool Map::isMovable(const int& _x, const int& _y)
 
 	if (_y < 0)
 		return false;
-	
+
 	int pos = _y * m_nSizeY + _x;
 
 	// 움직인 곳의 맵이 공백이 아니면 맵 자체로 이동 불가

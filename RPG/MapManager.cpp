@@ -64,7 +64,7 @@ Map* MapManager::makeMap(const int& _x, const int& _y, std::vector<PosInfo>& _po
 	}
 
 	// 랜덤한 두 선을 잡아서 연결해 줍니다.
-	
+
 	// 두 선을 이어줍니다.
 	int nStartY = nBeginPos / _y;
 	int nStartX = (nBeginPos % _y) % _x;
@@ -132,14 +132,14 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 	// 유저는 시작점 정보를 가지고 쓰고 없앤다. 유저 생성지점 근처에 적이 생기지 않도록 한다
 	auto pUserPlaceInfo = placableList.at(0);
 	Player* pPlayer = new Player(pUserPlaceInfo._x, pUserPlaceInfo._y, _userClass);
-	placableList.erase(placableList.begin() + placableList.size()/4); // 앞의 4분의 1을 자릅니다.
+	placableList.erase(placableList.begin() + placableList.size() / 4); // 앞의 4분의 1을 자릅니다.
 
 	// 유저등록
 	m_actorList[_uID].push_back(pPlayer);
 
 	// 적 등록
 	const int ENEMY_SIZE = _x / 2;
-	PosInfo stPosInfo=PosInfo(0, 0);
+	PosInfo stPosInfo = PosInfo(0, 0);
 	int nRandomIndex = 0;
 	srand((unsigned int)time(nullptr)); // 적위치 랜덤 시드
 
