@@ -1,25 +1,5 @@
 ﻿#include "pch.h"
 
-
-#pragma comment(lib, "Dbghelp.lib")
-#include <DbgHelp.h> //디버깅
-
-LONG WINAPI ExceptionCallBack(EXCEPTION_POINTERS* exceptionInfo)
-{
-	MINIDUMP_EXCEPTION_INFORMATION info = { 0 };
-	info.ThreadId = ::GetCurrentThreadId(); // Threae ID 설정
-	info.ExceptionPointers = exceptionInfo; // Exception 정보 설정
-	info.ClientPointers = FALSE;
-
-	// 덤프 파일 생성
-	std::wstring strtemp(L"D:\\GIT_LHY1990\\Server\\DUMP.dmp");
-	HANDLE hFile = CreateFile(strtemp.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &info, NULL, NULL);
-
-	return 0L;
-}
-
-
 /*
 * 몹이동
 * 스레드
@@ -49,12 +29,11 @@ int main()
 	// 맵크기 입력 받기
 	selectMapSize(nUserInput);
 
-	auto pMapManager = make_unique<MapManager>();
+	auto pMapManager = make_shared<MapManager>();
+	auto pEnemyManager = make_shared<EnemyManager>(pMapManager);
 	pMapManager->registUser(nAuid, nUserInput, nUserInput, eUserClass);
 
 	auto userMap = pMapManager->getMap(nAuid);
-
-	SetUnhandledExceptionFilter(ExceptionCallBack);
 
 	try {
 		while (true)
@@ -72,7 +51,7 @@ int main()
 
 			//주변에 적이 있는지 확인하는 함수 
 
-			::Sleep(150);
+			::Sleep(100);
 			system("cls");
 		}
 	}

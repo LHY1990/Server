@@ -1,16 +1,19 @@
 #include "AttackManager.h"
 
-void AttackManager::Attack(std::shared_ptr<Actor> const _attacker, std::shared_ptr<Actor> const _target)
+void AttackManager::Attack(std::weak_ptr<Actor>& const _attacker, std::weak_ptr<Actor>& const _target)
 {
-	if (_attacker == nullptr || _target == nullptr)
+	auto attacker = _attacker.lock();
+	auto target = _target.lock();
+
+	if (!attacker || !target)
 		return;
 
-	if (_target->isDie())
+	if (target->isDie())
 	{
 		LogManager::debug("유저가 죽었는데 공격을 시도");
 		return;
 	}
 
-	const int nDamage = _attacker->getAttack() - _target->getDeffense();
-	_target->setCurrentHp(_target->getCurrentHp() - nDamage);
+	const int nDamage = attacker->getAttack() - target->getDeffense();
+	target->setCurrentHp(target->getCurrentHp() - nDamage);
 }
