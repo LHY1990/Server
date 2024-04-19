@@ -1,21 +1,16 @@
 #include "Actor.h"
 
-Actor::Actor(const int _posX, const int _posY, E_TILE_TYPE _eTileType)
+Actor::Actor(const int _posX, const int _posY, E_TILE_TYPE _eTileType) : m_nPosX{ _posX }, m_nPosY{_posY}, m_eTileType{ _eTileType }
 {
 	m_nMaxHP = DEFAULT_HP;
 	m_nCurrentHP = m_nMaxHP;
 	m_nAttack = DEFAULT_ATK;
 	m_nDefense = DEFAULT_DFS;
 	m_nSearchRange = DEFAULT_SEARCH_RANGE;
-	m_bIsDie = false;
 	m_eDirection = static_cast<E_DIRECTION>(CommonUtil::getRand()%4);
-	m_nPosX = _posX;
-	m_nPosY = _posY;
-	m_eTileType = _eTileType;
-	m_bMoveManageStatus = false; // 스레드로 움직이게 할것인가.
 }
 
-int Actor::getMaxHp()
+int Actor::getMaxHp() const
 {
 	return m_nMaxHP;
 }
@@ -23,7 +18,7 @@ void Actor::setMaxHp(const int& _hp)
 {
 	m_nMaxHP = _hp;
 }
-int Actor::getCurrentHp()
+int Actor::getCurrentHp() const
 {
 	return m_nCurrentHP;
 }
@@ -33,7 +28,7 @@ void Actor::setCurrentHp(const int& _hp)
 	if (_hp <= 0)
 		m_bIsDie = true;
 }
-int Actor::getAttack()
+int Actor::getAttack() const
 {
 	return m_nAttack;
 }
@@ -42,7 +37,7 @@ int Actor::increaseAttack(const int& _inc)
 	m_nAttack += _inc;
 	return m_nAttack;
 }
-int Actor::getDeffense()
+int Actor::getDeffense() const
 {
 	return m_nDefense;
 }
@@ -55,11 +50,11 @@ void Actor::setPos(const int& _x, const int& _y)
 	m_nPosX = _x;
 	m_nPosY = _y;
 }
-bool Actor::isDie()
+bool Actor::isDie() const
 {
 	return m_nCurrentHP <= 0;
 }
-int Actor::getX()
+int Actor::getX() const
 {
 	return m_nPosX;
 }
@@ -67,7 +62,7 @@ void Actor::setX(const int _x)
 {
 	m_nPosX = _x;
 }
-int Actor::getY()
+int Actor::getY() const
 {
 	return m_nPosY;
 }
@@ -75,9 +70,9 @@ void Actor::setY(const int _y)
 {
 	m_nPosY = _y;
 }
-bool Actor::isAutoMove()
+bool Actor::isAutoMove() const
 {
-	return m_bMoveManageStatus;;
+	return m_bMoveManageStatus;
 }
 void Actor::setAutoMoveOn()
 {
@@ -87,7 +82,7 @@ void Actor::setAutoMoveOff()
 {
 	m_bMoveManageStatus = false;
 }
-bool Actor::isSamePos(const int& _x, const int& _y)
+bool Actor::isSamePos(const int& _x, const int& _y) const
 {
 	return (getX() == _x && getY() == _y);
 }
@@ -96,18 +91,18 @@ E_DIRECTION Actor::updateDirection()
 	m_eDirection = static_cast<E_DIRECTION>((static_cast<int>(m_eDirection) + 1) % 4);
 	return m_eDirection;
 }
-E_DIRECTION Actor::getDirection()
+E_DIRECTION Actor::getDirection() const
 {
 	return m_eDirection;
 }
-bool Actor::isSamePosition(const int& _x, const int& _y)
+bool Actor::isSamePosition(const int& _x, const int& _y) const
 {
 	if (m_nPosX == _x && m_nPosY == _y)
 		return true;
 
 	return false;
 }
-E_TILE_TYPE Actor::getActorTile()
+E_TILE_TYPE Actor::getActorTile() const
 {
 	return m_eTileType;
 }

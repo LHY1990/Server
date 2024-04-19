@@ -26,11 +26,8 @@
 
 #include "Map.h"
 
-
-
-#define DEFAULT_X 10;
-#define DEFAULT_Y 10;
-
+constexpr int DEFAULT_X = 10;
+constexpr int DEFAULT_Y = 10;
 
 enum class E_INPUT_KEY : int
 {
@@ -64,7 +61,8 @@ enum class E_TILE_TYPE : int
 
 	CHARACTER = 10,
 
-	ENEMY = 100
+	ENEMY = 100,
+	END_GAME = 120 //게임 종료
 
 };
 

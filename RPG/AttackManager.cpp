@@ -1,11 +1,11 @@
 #include "AttackManager.h"
 
-void AttackManager::Attack(std::weak_ptr<Actor>& const _attacker, std::weak_ptr<Actor>& const _target)
+void AttackManager::Attack(const std::weak_ptr<Actor>& _attacker, const std::weak_ptr<Actor>& _target)
 {
 	auto attacker = _attacker.lock();
 	auto target = _target.lock();
 
-	if (!attacker || !target)
+	if (attacker == nullptr || target == nullptr)
 		return;
 
 	if (target->isDie())

@@ -19,26 +19,22 @@ Map::Map(const int& _sizeX, const int& _sizeY) :m_nSizeX{ _sizeX }, m_nSizeY{ _s
 
 }
 
-Map::~Map()
-{
-}
-
-int Map::getX()
+int Map::getX() const
 {
 	return m_nSizeX;
 }
 
-int Map::getY()
+int Map::getY() const
 {
 	return m_nSizeY;
 }
 
-std::shared_ptr<char[]> Map::getRawMap()
+std::shared_ptr<char[]> Map::getRawMap() const
 {
 	return m_pRawMap;
 }
 
-bool Map::isMovable(const int& _x, const int& _y)
+bool Map::isMovable(const int& _x, const int& _y) const
 {
 	if (_x >= m_nSizeX)
 		return false; // 이동불가
@@ -62,7 +58,7 @@ bool Map::isMovable(const int& _x, const int& _y)
 }
 
 // 그냥 맵 길이를 반환합니다.
-int Map::getMapLength()
+int Map::getMapLength() const
 {
 	return m_nSizeX*m_nSizeY;
 }

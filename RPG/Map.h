@@ -24,12 +24,12 @@ class Map
 {
 public:
 	Map(const int& sizeX, const int& sizeY);
-	~Map();
-	int getX();
-	int getY();
-	std::shared_ptr<char[]> getRawMap();
-	bool isMovable(const int& _x, const int& y);
-	int getMapLength();
+	~Map() = default;
+	int getX() const;
+	int getY() const;
+	std::shared_ptr<char[]> getRawMap() const;
+	bool isMovable(const int& _x, const int& y) const;
+	int getMapLength() const;
 	bool copyMap(const std::shared_ptr<Map>& _pSource);
 
 private:

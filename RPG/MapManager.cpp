@@ -4,21 +4,16 @@
 
 using std::map;
 
-#define INT_SIZE sizeof(int)
-
-MapManager::MapManager()
-{
-}
-MapManager::~MapManager()
-{
-}
+constexpr int INT_SIZE = sizeof(int);
+constexpr int MIN_DISTANCE = 6;
+constexpr int MAP_BIAS = 5;
 
 std::shared_ptr<Map> MapManager::makeMap(const int& _x, const int& _y, std::vector<PosInfo>& _posList)
 {
 	auto _map = std::make_shared<Map>(_x, _y);
 
 	// 최대 공백 비율
-	int maxVoid = static_cast<int>(_x * _y * 0.65);
+	int maxVoid = static_cast<int>(_x * _y * 0.50);
 
 	// 길을 만들기 위한 임의의 시작 끝점
 	int nBeginPos = _x * _y;
@@ -37,8 +32,6 @@ std::shared_ptr<Map> MapManager::makeMap(const int& _x, const int& _y, std::vect
 		if (nCor < nBeginPos)
 			nBeginPos = nCor;
 	}
-
-	// 랜덤한 두 선을 잡아서 연결해 줍니다.
 
 	// 두 선을 이어줍니다.
 	int nStartY = nBeginPos / _y;
@@ -79,7 +72,12 @@ std::shared_ptr<Map> MapManager::makeMap(const int& _x, const int& _y, std::vect
 		_posList.push_back(PosInfo(nStartX, nStartY));
 	}
 
+	//게임의 마지막을 정해줍니다.
+	auto stEndPosInfo = _posList.back();
+	_map->getRawMap().get()[stEndPosInfo._y * _y + stEndPosInfo._x] = static_cast<int>(E_TILE_TYPE::END_GAME);
+
 	// 맵 필터링
+	openRoad(_map);
 	removeNoise(_map);
 	fillEmpty(_map);
 
@@ -89,16 +87,15 @@ std::shared_ptr<Map> MapManager::makeMap(const int& _x, const int& _y, std::vect
 bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_CLASS _userClass)
 {
 	// if exist
-	if (m_mapListMap.find(_uID) != m_mapListMap.end())
+	if (true == m_mapListMap.contains(_uID))
 		return false;
 
-	std::vector<PosInfo> placableList = std::vector<PosInfo>(0);
+	auto placableList = std::vector<PosInfo>(0);
 
 	auto pMap = makeMap(_x, _y, placableList);
 	m_mapListMap[_uID] = pMap;
 
-	auto iter = m_actorListMap.find(_uID);
-	if (iter == m_actorListMap.end())
+	if (false == m_actorListMap.contains(_uID))
 		m_actorListMap[_uID] = std::vector<std::shared_ptr<Actor>>(0);
 
 	int currentPos = 0;
@@ -118,22 +115,22 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 
 	// 적 등록
 	const int ENEMY_SIZE = _x / 2;
-	PosInfo stPosInfo = PosInfo(0, 0);
+	auto stPosInfo = PosInfo(0, 0);
 	int nRandomIndex = 0;
 
 	int nRandX = 0;
 	int nRandY = 0;
 
 	// 길가의 적들과 랜덤 적을 넣는다.
-	int enemyType = 0; // 
+	int enemyType = 0;
 	while (m_actorListMap[_uID].size() < ENEMY_SIZE + 1)
 	{
-		enemyType = CommonUtil::getRand() / 100;
+		enemyType = CommonUtil::getRand() % 100;
 
 		if (enemyType < 50) // 루트상의 적 비율이 더 높다
 		{
 			nRandomIndex = CommonUtil::getRand() % placableList.size();
-			nRandomIndex = nRandomIndex < 6 ? 6 : nRandomIndex;
+			nRandomIndex = nRandomIndex < MIN_DISTANCE ? MIN_DISTANCE : nRandomIndex; // 적이 유저랑 너무 가깝지 않게
 			stPosInfo = placableList.at(nRandomIndex);
 
 			if (stPosInfo._x == pPlayer->getX() && stPosInfo._y == pPlayer->getY())
@@ -152,7 +149,7 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 			if (nRandX == pPlayer->getX() && nRandY == pPlayer->getY())
 				continue;
 
-			if (pMap->isMovable(nRandX, nRandY) && isActorInList(m_actorListMap[_uID], nRandX, nRandY))
+			if (pMap->isMovable(nRandX, nRandY) && false == isActorInList(m_actorListMap[_uID], nRandX, nRandY))
 			{
 				m_actorListMap[_uID].push_back(std::make_shared<Enemy>(nRandX, nRandY, E_ENEMY_TYPE::TYPE_MOB));
 			}
@@ -207,11 +204,9 @@ void MapManager::drawMap(const INT64& _uID)
 		}
 		printf("\n");
 	}
-
-
 }
 
-void MapManager::playerMove(const INT64& _uID, const char& _keyboad)
+void MapManager::playerMove(const INT64& _uID, const int& _keyboad)
 {
 	const auto pUserMap = getMap(_uID);
 	auto actorIter = m_actorListMap.find(_uID);
@@ -262,6 +257,10 @@ void MapManager::playerMove(const INT64& _uID, const char& _keyboad)
 			pPlayer->setX(xCor);
 		return;
 	}
+	case E_INPUT_KEY::E_INPUT_KEY_NONE:
+		return;
+	default:
+		return;
 	};
 }
 
@@ -276,7 +275,14 @@ std::string MapManager::getMapTile(const char& _mapTile)
 	case E_TILE_TYPE::CHARACTER:
 		return "♤";
 	case E_TILE_TYPE::ENEMY:
-		return "◆";
+		return "◎";
+	case E_TILE_TYPE::END_GAME:
+	{
+		if (CommonUtil::getRand() % 2 == 0)
+			return "☎";
+		else
+			return "☏";
+	}
 	default:
 		return "▒ ";
 	}
@@ -284,7 +290,7 @@ std::string MapManager::getMapTile(const char& _mapTile)
 
 std::string MapManager::getMapTileByEnum(E_TILE_TYPE _eTile)
 {
-	return getMapTile(static_cast<int>(_eTile));
+	return getMapTile(static_cast<char>(_eTile));
 }
 
 E_TILE_TYPE MapManager::getActorOnTile(const INT64& _uID, const int& _x, const int& _y)
@@ -312,7 +318,7 @@ std::map<INT64, std::vector<std::shared_ptr<Actor>>> MapManager::getActorList()
 	return m_actorListMap;
 }
 
-bool MapManager::isActorInList(std::vector<std::shared_ptr<Actor>>& _actorList, const int& _x, const int& _y)
+bool MapManager::isActorInList(std::vector<std::shared_ptr<Actor>>& _actorList, const int& _x, const int& _y) const
 {
 	for (auto pActor : _actorList)
 	{
@@ -329,12 +335,15 @@ void MapManager::removeNoise(std::shared_ptr<Map>& _pMap)
 	if (_pMap == nullptr)
 		return;
 
-	bool bLeftEmpty, bUpEmpty, bRightEmpty, bDownEmpty = false;
+	bool bLeftEmpty;
+	bool bUpEmpty;
+	bool bRightEmpty;
+	bool bDownEmpty;
 	int nPos = 0;
 
-	for (int y = _pMap->getY() - 1;y >= 0;--y)
+	for (int y = _pMap->getY() - 1; y >= 0; --y)
 	{
-		for (int x = 0;x < _pMap->getX();++x)
+		for (int x = 0; x < _pMap->getX(); ++x)
 		{
 			nPos = y * _pMap->getY() + x;
 
@@ -384,7 +393,6 @@ void MapManager::removeNoise(std::shared_ptr<Map>& _pMap)
 					bRightEmpty = true;
 			}
 
-
 			//아래체크
 			if (y - 1 < 0)
 			{
@@ -399,8 +407,6 @@ void MapManager::removeNoise(std::shared_ptr<Map>& _pMap)
 
 			int nCount = bLeftEmpty + bUpEmpty + bRightEmpty + bDownEmpty;
 
-			//if (bLeftEmpty && bUpEmpty && bRightEmpty && bDownEmpty)
-
 			if (nCount >= 3)
 			{
 				nPos = y * _pMap->getY() + x;
@@ -408,32 +414,63 @@ void MapManager::removeNoise(std::shared_ptr<Map>& _pMap)
 				// 난 찾은거의 절반만 가져가
 				if (nCount == 3)
 				{
-					if (x % 5 == 0) //이거는 필터링 상수 넣기
+					if (x * y % MAP_BIAS == 0) //필터링 상수.
 						_pMap->getRawMap().get()[nPos] = static_cast<char>(E_TILE_TYPE::NONE);
 				}
 				else
 				{
 					_pMap->getRawMap().get()[nPos] = static_cast<char>(E_TILE_TYPE::NONE);
 				}
-				
 			}
 		}
-
-
 	}
 }
 
-void MapManager::fillEmpty(std::shared_ptr<Map>& _pMap)
+void MapManager::openRoad(std::shared_ptr<Map>& _pMap)
 {
 	if (_pMap == nullptr)
 		return;
 
-	bool bLeft, bUp, bRight, bDown = false;
+	const int LENGTH = 2;
+
+	for (int y = _pMap->getY() - 1; y >= 0; --y)
+	{
+		for (int x = 0; x < _pMap->getX(); ++x)
+		{
+			if (x + 1 >= _pMap->getX())
+				continue;
+
+			if (y + 1 >= _pMap->getY())
+				continue;
+
+			if (_pMap->getRawMap().get()[y * _pMap->getY() + x] != static_cast<int>(E_TILE_TYPE::NONE) && _pMap->getRawMap().get()[y * _pMap->getY() + x + 1] == static_cast<int>(E_TILE_TYPE::NONE))
+			{
+				if (_pMap->getRawMap().get()[(y + 1) * _pMap->getY() + x] == static_cast<int>(E_TILE_TYPE::NONE) && _pMap->getRawMap().get()[(y + 1) * _pMap->getY() + x + 1] != static_cast<int>(E_TILE_TYPE::NONE))
+					_pMap->getRawMap().get()[y * _pMap->getY() + x] = static_cast<int>(E_TILE_TYPE::NONE);
+			}
+			else if (_pMap->getRawMap().get()[y * _pMap->getY() + x] == static_cast<int>(E_TILE_TYPE::NONE) && _pMap->getRawMap().get()[y * _pMap->getY() + x + 1] != static_cast<int>(E_TILE_TYPE::NONE))
+			{
+				if (_pMap->getRawMap().get()[(y + 1) * _pMap->getY() + x] != static_cast<int>(E_TILE_TYPE::NONE) && _pMap->getRawMap().get()[(y + 1) * _pMap->getY() + x + 1] == static_cast<int>(E_TILE_TYPE::NONE))
+					_pMap->getRawMap().get()[y * _pMap->getY() + x + 1] = static_cast<int>(E_TILE_TYPE::NONE);
+			}
+		}
+	}
+}
+
+void MapManager::fillEmpty(const std::shared_ptr<Map>& _pMap)
+{
+	if (_pMap == nullptr)
+		return;
+
+	bool bLeft = false;
+	bool bUp = false;
+	bool bRight = false;
+	bool bDown = false;
 	int nPos = 0;
 
-	for (int y = _pMap->getY() - 1;y >= 0;--y)
+	for (int y = _pMap->getY() - 1; y >= 0; --y)
 	{
-		for (int x = 0;x < _pMap->getX();++x)
+		for (int x = 0; x < _pMap->getX(); ++x)
 		{
 			nPos = y * _pMap->getY() + x;
 
@@ -483,7 +520,6 @@ void MapManager::fillEmpty(std::shared_ptr<Map>& _pMap)
 					bRight = true;
 			}
 
-
 			//아래체크
 			if (y - 1 < 0)
 			{
@@ -499,7 +535,8 @@ void MapManager::fillEmpty(std::shared_ptr<Map>& _pMap)
 			if (bLeft && bUp && bRight && bDown)
 			{
 				nPos = y * _pMap->getY() + x;
-				_pMap->getRawMap().get()[nPos] = static_cast<char>(E_TILE_TYPE::BLOCK);
+				if (_pMap->getRawMap().get()[nPos] != static_cast<char>(E_TILE_TYPE::END_GAME))
+					_pMap->getRawMap().get()[nPos] = static_cast<char>(E_TILE_TYPE::BLOCK);
 			}
 		}
 	}

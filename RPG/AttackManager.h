@@ -3,6 +3,6 @@
 
 class AttackManager
 {
-	void Attack(std::weak_ptr<Actor>& const _attacker, std::weak_ptr<Actor>& const _target);
+	void Attack(const std::weak_ptr<Actor>& _attacker,const std::weak_ptr<Actor>& _target);
 };
 

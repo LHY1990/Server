@@ -1,22 +1,11 @@
 #include "EnemyManager.h"
 
-EnemyManager::EnemyManager(std::shared_ptr<MapManager>& _pMapManager) : m_pMapManager{ _pMapManager }
+EnemyManager::EnemyManager(const std::shared_ptr<MapManager>& _pMapManager) : m_pMapManager{ _pMapManager }
 {
-
-}
-
-EnemyManager::~EnemyManager()
-{
-
 }
 
 void EnemyManager::enemyMoveOn()
 {
-	LogManager::error("시뮬레이션 중이다.");
-
-	// 10초 대기
-	//std::this_thread::sleep_for(std::chrono::seconds(10));
-
 	if (m_pMapManager == nullptr)
 		return;
 
@@ -59,15 +48,17 @@ void EnemyManager::simulation()
 }
 
 //액터 때문에못움직이는가
-bool EnemyManager::isActorExist(const INT64& _uID, const int& _x, const int& _y)
+bool EnemyManager::isActorExist(const INT64& _uID, const int& _x, const int& _y) const
 {
 	if (m_pMapManager == nullptr)
 		return true;
 
 	auto actorMap = m_pMapManager->getActorList();
 	auto actorListiter = actorMap.find(_uID);
+	if (actorListiter == actorMap.end())
+		return true;
 
-	for (auto singleActor : actorListiter->second) // second is actorList
+	for (const auto& singleActor : actorListiter->second) // second is actorList
 	{
 		if (singleActor->getX() == _x && singleActor->getY() == _y)
 			return true;

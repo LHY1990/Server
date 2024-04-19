@@ -2,9 +2,6 @@
 
 
 /*
-* 몹이동
-* 스레드
-* 범위내 들어오면 공격
 * 이동후 주변 탐색으로 몹 있는지 확인 -> 함수뺄것
 */
 class MapManager;
@@ -33,14 +30,13 @@ int main()
 	auto pMapManager = make_shared<MapManager>();
 	pMapManager->registUser(nAuid, nUserInput, nUserInput, eUserClass);
 
-	shared_ptr<Map> userMap = pMapManager->getMap(nAuid);
-
 	EnemyManager pEnemyManager{ pMapManager };
-	thread hEnemyManagerThread{ &EnemyManager::simulation, &pEnemyManager };
+	jthread hEnemyManagerThread{ &EnemyManager::simulation, &pEnemyManager };
 	
 	COORD screenCoord{ 0,0 };
-	CONSOLE_CURSOR_INFO hConsoleCursor;
-	hConsoleCursor.bVisible = true;
+	CONSOLE_CURSOR_INFO hConsoleCursor = { 0, false};
+	hConsoleCursor.bVisible = false;
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &hConsoleCursor);
 
 	try {
 		while (true)
@@ -48,7 +44,6 @@ int main()
 			if (::_kbhit() > 0)
 			{
 				nInputKey = ::_getch();
-				//printf("Key : %d\n", nInputKey);
 			}
 			else nInputKey = 0;
 
