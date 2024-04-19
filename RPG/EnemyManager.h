@@ -19,6 +19,6 @@ public:
 	bool isActorExist(const INT64& _uID, const int& _x, const int& _y);
 
 private:
-	void moveEnemy(const INT64& _uID, std::shared_ptr<Map>& _pMap, std::shared_ptr<Actor>& _pActor);
+	void moveEnemy(const INT64& _uID, const std::shared_ptr<Map>& _pMap, const std::shared_ptr<Actor>& _pActor);
 };
 

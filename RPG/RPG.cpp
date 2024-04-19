@@ -57,7 +57,7 @@ int main()
 			SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), screenCoord);
 			pMapManager->drawMap(nAuid);
 
-			::Sleep(50);
+			::Sleep(10);
 		}
 	}
 	catch (exception& e)

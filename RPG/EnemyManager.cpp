@@ -48,6 +48,7 @@ void EnemyManager::enemyMoveOn()
 	}
 }
 
+[[noreturn]]
 void EnemyManager::simulation()
 {
 	while (true)
@@ -74,12 +75,12 @@ bool EnemyManager::isActorExist(const INT64& _uID, const int& _x, const int& _y)
 
 	return false;
 }
-void EnemyManager::moveEnemy(const INT64& _uID, std::shared_ptr<Map>& _pMap, std::shared_ptr<Actor>& _pActor)
+void EnemyManager::moveEnemy(const INT64& _uID, const std::shared_ptr<Map>& _pMap, const std::shared_ptr<Actor>& _pActor)
 {
 	if (_pMap == nullptr || _pActor == nullptr)
 		return;
 
-	std::unique_lock<std::mutex> uniqueLock{ m_mEnemyMutex };
+	std::unique_lock uniqueLock{ m_mEnemyMutex }; //std::unique_lock<std::mutex>
 
 	int moveX = _pActor->getX();
 	int moveY = _pActor->getY();

@@ -130,9 +130,10 @@ bool MapManager::registUser(const INT64& _uID, const int& _x, const int& _y, E_C
 	{
 		enemyType = CommonUtil::getRand() / 100;
 
-		if (enemyType < 95) // 루트상의 적 비율이 더 높다
+		if (enemyType < 50) // 루트상의 적 비율이 더 높다
 		{
 			nRandomIndex = CommonUtil::getRand() % placableList.size();
+			nRandomIndex = nRandomIndex < 6 ? 6 : nRandomIndex;
 			stPosInfo = placableList.at(nRandomIndex);
 
 			if (stPosInfo._x == pPlayer->getX() && stPosInfo._y == pPlayer->getY())
