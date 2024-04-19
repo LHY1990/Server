@@ -8,7 +8,7 @@ Actor::Actor(const int _posX, const int _posY, E_TILE_TYPE _eTileType)
 	m_nDefense = DEFAULT_DFS;
 	m_nSearchRange = DEFAULT_SEARCH_RANGE;
 	m_bIsDie = false;
-	m_eDirection = E_DIRECTION::UP;
+	m_eDirection = static_cast<E_DIRECTION>(CommonUtil::getRand()%4);
 	m_nPosX = _posX;
 	m_nPosY = _posY;
 	m_eTileType = _eTileType;
@@ -75,6 +75,10 @@ void Actor::setY(const int _y)
 {
 	m_nPosY = _y;
 }
+bool Actor::isAutoMove()
+{
+	return m_bMoveManageStatus;;
+}
 void Actor::setAutoMoveOn()
 {
 	m_bMoveManageStatus = true;
@@ -82,6 +86,19 @@ void Actor::setAutoMoveOn()
 void Actor::setAutoMoveOff()
 {
 	m_bMoveManageStatus = false;
+}
+bool Actor::isSamePos(const int& _x, const int& _y)
+{
+	return (getX() == _x && getY() == _y);
+}
+E_DIRECTION Actor::updateDirection()
+{
+	m_eDirection = static_cast<E_DIRECTION>((static_cast<int>(m_eDirection) + 1) % 4);
+	return m_eDirection;
+}
+E_DIRECTION Actor::getDirection()
+{
+	return m_eDirection;
 }
 bool Actor::isSamePosition(const int& _x, const int& _y)
 {

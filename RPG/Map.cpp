@@ -60,3 +60,28 @@ bool Map::isMovable(const int& _x, const int& _y)
 
 	return true;
 }
+
+// 그냥 맵 길이를 반환합니다.
+int Map::getMapLength()
+{
+	return m_nSizeX*m_nSizeY;
+}
+
+bool Map::copyMap(const std::shared_ptr<Map>& _pSource)
+{
+	if (_pSource == nullptr || m_pRawMap == nullptr)
+		return false;
+
+	if (_pSource->getX() != getX())
+		return false;
+
+	if (_pSource->getY() != getY())
+		return false;
+
+	for (int i = 0;i < _pSource->getMapLength();++i)
+	{
+		m_pRawMap[i] = _pSource->m_pRawMap[i];
+	}
+
+	return true;
+}

@@ -29,6 +29,8 @@ public:
 	int getY();
 	std::shared_ptr<char[]> getRawMap();
 	bool isMovable(const int& _x, const int& y);
+	int getMapLength();
+	bool copyMap(const std::shared_ptr<Map>& _pSource);
 
 private:
 	int m_nSizeX{ 0 };

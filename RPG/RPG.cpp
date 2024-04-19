@@ -35,7 +35,12 @@ int main()
 
 	shared_ptr<Map> userMap = pMapManager->getMap(nAuid);
 
-	auto pEnemyManager = make_shared<EnemyManager>(pMapManager);
+	EnemyManager pEnemyManager{ pMapManager };
+	thread hEnemyManagerThread{ &EnemyManager::simulation, &pEnemyManager };
+	
+	COORD screenCoord{ 0,0 };
+	CONSOLE_CURSOR_INFO hConsoleCursor;
+	hConsoleCursor.bVisible = true;
 
 	try {
 		while (true)
@@ -49,17 +54,20 @@ int main()
 
 			pMapManager->playerMove(nAuid, nInputKey);
 
+			SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), screenCoord);
 			pMapManager->drawMap(nAuid);
 
-			::Sleep(100);
-			system("cls");
+			::Sleep(50);
 		}
 	}
 	catch (exception& e)
 	{
 		LogManager::error(e.what());
 	}
-	
+
+	hEnemyManagerThread.join();
+
+	return 0;
 }
 
 E_CLASS selectClass(int& _userInput)
@@ -93,10 +101,14 @@ E_CLASS selectClass(int& _userInput)
 
 void selectMapSize(int& _userInput)
 {
-	std::cout << "맵 크기를 입력하세요 (10이상 30 이하). 이동은 w a s d 입니다." << std::endl;
+	std::cout << "맵 크기를 입력하세요 (10 이상 50 이하). 이동은 w a s d 입니다." << std::endl;
 	std::cin >> _userInput;
 
-	if ((_userInput < 10) || (_userInput > 30))
+	system("cls");
+
+	if (_userInput < 10)
 		_userInput = 10;
+	else if (_userInput > 50)
+		_userInput = 50;
 }
 

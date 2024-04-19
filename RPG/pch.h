@@ -16,11 +16,13 @@
 #include <random>
 #include <memory>
 #include <thread>
+#include <mutex>
 
 #include "Actor.h"
 #include "LogManager.h"
 #include "MapManager.h"
 #include "EnemyManager.h"
+#include "CommonUtil.h"
 
 #include "Map.h"
 
@@ -41,9 +43,9 @@ enum class E_INPUT_KEY : int
 
 enum class E_DIRECTION : int
 {
+	LEFT,
 	UP,
 	DOWN,
-	LEFT,
 	RIGHT
 };
 

@@ -20,6 +20,7 @@ private:
 
 	int m_nPosX;
 	int m_nPosY;
+
 	bool m_bIsDie;
 	bool m_bMoveManageStatus;
 
@@ -50,8 +51,14 @@ public:
 	int getY();
 	void setY(const int _y);
 
+	bool isAutoMove();
 	void setAutoMoveOn();
 	void setAutoMoveOff();
+
+	bool isSamePos(const int& _x, const int& _y);
+
+	E_DIRECTION updateDirection();
+	E_DIRECTION getDirection();
 
 	bool isSamePosition(const int& _x, const int& _y);
 	E_TILE_TYPE getActorTile();

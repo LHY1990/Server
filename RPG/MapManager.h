@@ -11,8 +11,9 @@ enum class E_TILE_TYPE;
 class MapManager
 {
 private:
-	std::map<INT64, std::shared_ptr<Map>> m_mapList{ std::map<INT64, std::shared_ptr<Map>>() };
-	std::map<INT64, std::vector<std::shared_ptr<Actor>>> m_actorList = std::map<INT64, std::vector<std::shared_ptr<Actor>>>();
+	std::map<INT64, std::shared_ptr<Map>> m_mapListMap{ std::map<INT64, std::shared_ptr<Map>>() };
+	std::map<INT64, std::vector<std::shared_ptr<Actor>>> m_actorListMap = std::map<INT64, std::vector<std::shared_ptr<Actor>>>();
+	std::mutex m_mMapMutex;
 
 public:
 	MapManager();
@@ -28,6 +29,9 @@ public:
 	std::string getMapTileByEnum(E_TILE_TYPE _eTile);
 	E_TILE_TYPE getActorOnTile(const INT64& _uID, const int& x, const int& _y);
 	std::map<INT64, std::vector<std::shared_ptr<Actor>>> getActorList();
+	bool isActorInList(std::vector <std::shared_ptr<Actor>>& _actorList, const int& _x, const int& _y);
+	void removeNoise(std::shared_ptr<Map>& _pMap);
+	void fillEmpty(std::shared_ptr<Map>& _pMap);
 
 };
 

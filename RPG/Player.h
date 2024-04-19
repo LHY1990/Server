@@ -11,6 +11,5 @@ private:
 public:
 	Player(int const _x, const int _y, E_CLASS _class);
 	void changeClass(E_CLASS _class);
-
 };
 
