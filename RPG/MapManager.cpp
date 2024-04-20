@@ -347,7 +347,7 @@ void MapManager::removeNoise(std::shared_ptr<Map>& _pMap)
 		{
 			nPos = y * _pMap->getY() + x;
 
-			if (_pMap->getRawMap().get()[nPos] == static_cast<char>(E_TILE_TYPE::NONE))
+			if (_pMap->getRawMap().get()[nPos] == static_cast<char>(E_TILE_TYPE::NONE) || _pMap->getRawMap().get()[nPos] == static_cast<char>(E_TILE_TYPE::END_GAME))
 				continue;
 
 			bLeftEmpty = false;
