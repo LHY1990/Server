@@ -9,6 +9,7 @@ class EnemyManager;
 class AttackManager; // 전투 공식 및 전투 체크사항
 E_CLASS selectClass(int& _userSelect);
 void selectMapSize(int& _userInput);
+void cursorOff();
 
 using namespace std;
 
@@ -33,10 +34,11 @@ int main()
 	EnemyManager pEnemyManager{ pMapManager };
 	jthread hEnemyManagerThread{ &EnemyManager::simulation, &pEnemyManager };
 	
+	// 커서 끄기
+	cursorOff();
+
+	// 출력좌표 세팅
 	COORD screenCoord{ 0,0 };
-	CONSOLE_CURSOR_INFO hConsoleCursor = { 0, false};
-	hConsoleCursor.bVisible = false;
-	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &hConsoleCursor);
 
 	try {
 		while (true)
@@ -107,3 +109,9 @@ void selectMapSize(int& _userInput)
 		_userInput = 50;
 }
 
+void cursorOff()
+{
+	CONSOLE_CURSOR_INFO hConsoleCursor = { 1, false };
+	hConsoleCursor.bVisible = false;
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &hConsoleCursor);
+}

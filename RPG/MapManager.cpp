@@ -3,7 +3,8 @@
 #include "Player.h"
 
 using std::map;
-
+class string;
+  
 constexpr int INT_SIZE = sizeof(int);
 constexpr int MIN_DISTANCE = 6;
 constexpr int MAP_BIAS = 5;
@@ -264,22 +265,34 @@ void MapManager::playerMove(const INT64& _uID, const int& _keyboad)
 	};
 }
 
+/*
+Black  : \033[0;30m
+Red    : \033[0;31m
+Green  : \033[0;32m
+Yellow : \033[0;33m
+Blue   : \033[0;34m
+Purple : \033[0;35m
+Cyan   : \033[0;36m
+White  : \033[0;37m
+*/
+
 std::string MapManager::getMapTile(const char& _mapTile)
 {
 	switch (static_cast<E_TILE_TYPE>(_mapTile))
 	{
 	case E_TILE_TYPE::NONE:
-		return "¢Æ ";
+		//return "\033[1;30m¢Æ \033[0;37m";
+		return "  ";
 	case E_TILE_TYPE::BLOCK:
 		return "¡á";
 	case E_TILE_TYPE::CHARACTER:
-		return "¢»";
+		return "\033[1;32m¡Ú\033[0;37m";
 	case E_TILE_TYPE::ENEMY:
-		return "¡Ý";
+		return "\033[1;31m¡Ý\033[0;37m";
 	case E_TILE_TYPE::END_GAME:
 	{
 		if (CommonUtil::getRand() % 2 == 0)
-			return "¢Ï";
+			return "\033[1;33m¢Ï\033[0;37m";
 		else
 			return "¢Î";
 	}
