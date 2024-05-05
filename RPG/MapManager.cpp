@@ -183,7 +183,7 @@ void MapManager::drawMap(const INT64& _uID)
 		return;
 	}
 
-	std::string unicode;
+	std::string icon;
 	E_TILE_TYPE eTemp;
 
 	for (int y = map->getY() - 1; y >= 0; --y)
@@ -193,15 +193,18 @@ void MapManager::drawMap(const INT64& _uID)
 			eTemp = E_TILE_TYPE::NONE;
 
 			// 기본 맵 속성
-			unicode = getMapTile(*(map->getRawMap().get() + (x + y * map->getY())));
+			icon = getMapTile(*(map->getRawMap().get() + (x + y * map->getY())));
 
 			// 유저나 적, 보스를 검색해서 맵에 반영
 			eTemp = getActorOnTile(_uID, x, y);
 			if (eTemp != E_TILE_TYPE::NONE)
-				unicode = getMapTileByEnum(eTemp);
+			{
+				ConsoleManager::setColor(eTemp);
+				icon = getMapTileByEnum(eTemp);
+			}
 
-
-			printf("%s", unicode.c_str());;
+			printf("%s", icon.c_str());
+			ConsoleManager::setDefault();
 		}
 		printf("\n");
 	}
@@ -265,34 +268,23 @@ void MapManager::playerMove(const INT64& _uID, const int& _keyboad)
 	};
 }
 
-/*
-Black  : \033[0;30m
-Red    : \033[0;31m
-Green  : \033[0;32m
-Yellow : \033[0;33m
-Blue   : \033[0;34m
-Purple : \033[0;35m
-Cyan   : \033[0;36m
-White  : \033[0;37m
-*/
-
 std::string MapManager::getMapTile(const char& _mapTile)
 {
 	switch (static_cast<E_TILE_TYPE>(_mapTile))
 	{
 	case E_TILE_TYPE::NONE:
-		//return "\033[1;30m▒ \033[0;37m";
 		return "  ";
+		//return "▒ ";
 	case E_TILE_TYPE::BLOCK:
 		return "■";
 	case E_TILE_TYPE::CHARACTER:
-		return "\033[1;32m★\033[0;37m";
+		return "★";
 	case E_TILE_TYPE::ENEMY:
-		return "\033[1;31m◎\033[0;37m";
+		return "◎";
 	case E_TILE_TYPE::END_GAME:
 	{
 		if (CommonUtil::getRand() % 2 == 0)
-			return "\033[1;33m☎\033[0;37m";
+			return "☎";
 		else
 			return "☏";
 	}

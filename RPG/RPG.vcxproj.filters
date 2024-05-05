@@ -48,6 +48,9 @@
     <ClCompile Include="CommonUtil.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ConsoleManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -80,8 +83,14 @@
     <ClInclude Include="EnemyManager.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Const.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
     <ClInclude Include="CommonUtil.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleManager.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

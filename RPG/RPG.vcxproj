@@ -132,6 +132,7 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="AttackManager.cpp" />
     <ClCompile Include="CommonUtil.cpp" />
+    <ClCompile Include="ConsoleManager.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyManager.cpp" />
     <ClCompile Include="LogManager.cpp" />
@@ -145,6 +146,8 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="AttackManager.h" />
     <ClInclude Include="CommonUtil.h" />
+    <ClInclude Include="ConsoleManager.h" />
+    <ClInclude Include="Const.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyManager.h" />
     <ClInclude Include="LogManager.h" />
